@@ -127,10 +127,13 @@ html, body {
     flex-wrap: wrap;
     justify-content: center;
     font-size: clamp(0.95rem, 2.2vw, 1.4rem);
-    opacity: 0.9;
+    color: #8FD3FF;
+    border-top: 1px solid rgba(244, 247, 251, 0.25);
+    margin-top: 0.4rem;
+    padding-top: 0.5rem;
 }
 .dashboard-date-hijri {
-    opacity: 0.9;
+    opacity: 0.85;
 }
 
 .dashboard-status-text {
@@ -154,8 +157,7 @@ html, body {
     transition: font-size 0.4s ease;
 }
 .clock-panel.is-compact .clock-panel-time {
-    /* 300% of the original clamp(1.4rem, 5vw, 2.6rem). */
-    font-size: clamp(4.2rem, 15vw, 7.8rem);
+    font-size: 16rem;
 }
 
 /* Focus mode: everything inside (HH:mm, :ss, the countdown, the active-prayer banner) is sized in `em`
@@ -218,6 +220,22 @@ html, body {
     animation: pulse 1s infinite;
 }
 
+/* Iqamah-wait and active-banner states shrink the clock so the countdown/banner text can dominate instead
+   (Requirement.md: countdown-to-Iqamah and "waktu sholat" states). Placed after is-compact/is-focus so it
+   wins the specificity tie. */
+.clock-panel.is-shrunk .clock-panel-time {
+    font-size: clamp(1.4rem, 5vw, 2.6rem);
+}
+
+/* The Iqamah countdown (the only countdown-block rendered while shrunk — the active-banner state uses
+   .active-banner instead) becomes the dominant element on screen once the clock steps back. */
+.clock-panel.is-shrunk .countdown-label {
+    font-size: 3rem;
+}
+.clock-panel.is-shrunk .countdown-value {
+    font-size: 16rem;
+}
+
 .active-banner {
     font-size: clamp(1.8rem, 6.5vw, 4rem);
     font-weight: 800;
@@ -266,10 +284,6 @@ html, body {
     font-size: clamp(1rem, 2.8vw, 1.7rem);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-}
-.prayer-grid-iqamah {
-    font-size: clamp(0.75rem, 1.5vw, 1.05rem);
-    opacity: 0.8;
 }
 .prayer-grid-cell.is-next {
     background: rgba(47, 191, 131, 0.25);

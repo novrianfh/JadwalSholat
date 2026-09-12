@@ -67,6 +67,20 @@ public class ClockPanelTests : BunitContext
     }
 
     [Fact]
+    public void CountdownToNextPrayer_OmitsSeconds()
+    {
+        var schedule = Schedule();
+        // Dhuhr azan at 11:53; 1h 29m 45s before it, seconds must not appear in the countdown value.
+        var now = Date.ToDateTime(new TimeOnly(10, 23, 15));
+        var status = PrayerStatusCalculator.Compute(null, schedule, null, now);
+
+        var cut = Render<ClockPanel>(p => p.Add(x => x.Status, status).Add(x => x.Now, now));
+
+        var value = cut.Find(".countdown-value").TextContent;
+        Assert.Equal("01:30", value); // 1h 29m 45s rounds up to 1h 30m with seconds dropped
+    }
+
+    [Fact]
     public void ShowsActiveBanner_InsteadOfCountdown_WhenPrayerWindowActive()
     {
         var schedule = Schedule();
@@ -77,6 +91,50 @@ public class ClockPanelTests : BunitContext
 
         Assert.Contains("Waktu Sholat Dzuhur", cut.Markup);
         Assert.DoesNotContain("Menuju", cut.Markup);
+    }
+
+    [Fact]
+    public void ShowsIqamahCountdown_InsteadOfNextPrayerCountdown_WhenWaitingOnIqamah()
+    {
+        var schedule = Schedule();
+        var dhuhrAzan = schedule.Get(PrayerName.Dhuhr).AzanDateTime;
+        var now = dhuhrAzan.AddMinutes(1);
+        var status = PrayerStatusCalculator.Compute(null, schedule, null, now);
+
+        var cut = Render<ClockPanel>(p => p.Add(x => x.Status, status).Add(x => x.Now, now));
+
+        Assert.Contains("Menuju Iqamah Dzuhur", cut.Markup);
+        Assert.DoesNotContain("Menuju Ashar", cut.Markup);
+        Assert.DoesNotContain("Waktu Sholat", cut.Markup);
+        Assert.Contains("is-shrunk", cut.Markup);
+    }
+
+    [Fact]
+    public void MainClock_OmitsSeconds_WhileWaitingOnIqamah()
+    {
+        var schedule = Schedule();
+        var dhuhrAzan = schedule.Get(PrayerName.Dhuhr).AzanDateTime;
+        var now = dhuhrAzan.AddMinutes(1).AddSeconds(15);
+        var status = PrayerStatusCalculator.Compute(null, schedule, null, now);
+
+        var cut = Render<ClockPanel>(p => p
+            .Add(x => x.Status, status)
+            .Add(x => x.Now, now)
+            .Add(x => x.Compact, true));
+
+        Assert.Equal("11:54", cut.Find(".clock-panel-time").TextContent);
+    }
+
+    [Fact]
+    public void ShrinksClock_WhenActiveBannerShowing()
+    {
+        var schedule = Schedule();
+        var dhuhrIqamah = schedule.Get(PrayerName.Dhuhr).IqamahDateTime!.Value;
+        var status = PrayerStatusCalculator.Compute(null, schedule, null, dhuhrIqamah.AddMinutes(2));
+
+        var cut = Render<ClockPanel>(p => p.Add(x => x.Status, status).Add(x => x.Now, dhuhrIqamah));
+
+        Assert.Contains("is-shrunk", cut.Markup);
     }
 
     [Fact]

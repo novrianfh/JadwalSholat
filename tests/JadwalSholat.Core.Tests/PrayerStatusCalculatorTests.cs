@@ -221,6 +221,59 @@ public class PrayerStatusCalculatorTests
         Assert.Equal(PrayerName.Isha, status.ActiveBannerPrayerName);
     }
 
+    // ---- IqamahWaitEntry ("menuju Iqamah {nama}") ----
+
+    [Fact]
+    public void IqamahCountdown_BetweenAzanAndIqamah_TargetsThatPrayer()
+    {
+        var today = Schedule(Today);
+        var dhuhr = today.Get(PrayerName.Dhuhr);
+        var now = dhuhr.AzanDateTime.AddMinutes(1); // before iqamah (10 min later)
+
+        var status = PrayerStatusCalculator.Compute(null, today, null, now);
+
+        Assert.True(status.HasIqamahCountdown);
+        Assert.Equal(PrayerName.Dhuhr, status.IqamahWaitEntry!.Name);
+        Assert.Equal(TimeSpan.FromMinutes(9), status.CountdownToIqamah);
+    }
+
+    [Fact]
+    public void IqamahCountdown_AtIqamahMoment_IsNoLongerWaiting()
+    {
+        var today = Schedule(Today);
+        var now = today.Get(PrayerName.Dhuhr).IqamahDateTime!.Value;
+
+        var status = PrayerStatusCalculator.Compute(null, today, null, now);
+
+        Assert.False(status.HasIqamahCountdown);
+        Assert.Null(status.IqamahWaitEntry);
+    }
+
+    [Fact]
+    public void IqamahCountdown_OutsideAnyWindow_IsNull()
+    {
+        var today = Schedule(Today);
+        var now = today.Get(PrayerName.Dhuhr).AzanDateTime.AddHours(1);
+
+        var status = PrayerStatusCalculator.Compute(null, today, null, now);
+
+        Assert.False(status.HasIqamahCountdown);
+    }
+
+    [Fact]
+    public void IqamahCountdown_WhenActive_NextPrayerStillRollsPastTheJustStartedOne()
+    {
+        // NextPrayer should keep pointing at the *following* obligatory prayer even while we're
+        // waiting on this one's Iqamah — the two states are read from independent fields.
+        var today = Schedule(Today);
+        var dhuhr = today.Get(PrayerName.Dhuhr);
+        var now = dhuhr.AzanDateTime.AddMinutes(1);
+
+        var status = PrayerStatusCalculator.Compute(null, today, null, now);
+
+        Assert.Equal(PrayerName.Asr, status.NextPrayer.Name);
+    }
+
     // ---- HighlightedPrayerNameFor (which grid row lights up) ----
 
     [Fact]

@@ -7,10 +7,25 @@ public sealed record PrayerStatus(
     TimeSpan CountdownToNext,
     bool IsImminent,
     PrayerName CurrentPeriodPrayerName,
-    PrayerName? ActiveBannerPrayerName)
+    PrayerName? ActiveBannerPrayerName,
+    PrayerTimeEntry? IqamahWaitEntry)
 {
     /// <summary>True in the last 60 seconds before <see cref="NextPrayer"/>'s Azan (Requirement.md #20).</summary>
     public bool HasActiveBanner => ActiveBannerPrayerName is not null;
+
+    /// <summary>True between a prayer's Azan and its own Iqamah — the countdown display should switch from
+    /// "menuju {next prayer}" to "menuju Iqamah {this prayer}" during this window.</summary>
+    public bool HasIqamahCountdown => IqamahWaitEntry is not null;
+
+    public TimeSpan CountdownToIqamah
+    {
+        get
+        {
+            if (IqamahWaitEntry is null) return TimeSpan.Zero;
+            var span = IqamahWaitEntry.IqamahDateTime!.Value - Now;
+            return span < TimeSpan.Zero ? TimeSpan.Zero : span;
+        }
+    }
 
     /// <summary>Which row a grid for <paramref name="gridDate"/> should highlight (Requirement.md #17) —
     /// the upcoming prayer, e.g. at 11:03 with Dzuhur at 11:38, Dzuhur lights up rather than whatever prayer's

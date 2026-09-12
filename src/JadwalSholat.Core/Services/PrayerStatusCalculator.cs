@@ -18,8 +18,9 @@ public static class PrayerStatusCalculator
 
         var currentPeriodName = FindCurrentPeriod(yesterday, today, now);
         var activeBannerName = FindActiveBanner(yesterday, today, now);
+        var iqamahWaitEntry = FindIqamahWaitEntry(yesterday, today, now);
 
-        return new PrayerStatus(now, nextPrayer, countdown, isImminent, currentPeriodName, activeBannerName);
+        return new PrayerStatus(now, nextPrayer, countdown, isImminent, currentPeriodName, activeBannerName, iqamahWaitEntry);
     }
 
     private static PrayerTimeEntry FindNextPrayer(PrayerDaySchedule today, PrayerDaySchedule? tomorrow, DateTime now)
@@ -61,5 +62,17 @@ public static class PrayerStatusCalculator
             .Where(e => now >= e.IqamahDateTime!.Value && now < e.WindowEndDateTime!.Value)
             .Select(e => (PrayerName?)e.Name)
             .FirstOrDefault();
+    }
+
+    /// <summary>The prayer whose Azan already happened but whose Iqamah hasn't yet — the window where the
+    /// countdown display should target Iqamah rather than the next prayer's Azan.</summary>
+    private static PrayerTimeEntry? FindIqamahWaitEntry(PrayerDaySchedule? yesterday, PrayerDaySchedule today, DateTime now)
+    {
+        var windows = PrayerNames.Obligatory.Select(today.Get);
+        if (yesterday is not null) windows = windows.Append(yesterday.Get(PrayerName.Isha));
+
+        return windows
+            .Where(e => e.IqamahDateTime is not null)
+            .FirstOrDefault(e => now >= e.AzanDateTime && now < e.IqamahDateTime!.Value);
     }
 }

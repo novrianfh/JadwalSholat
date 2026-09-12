@@ -1,7 +1,7 @@
-<div class="clock-panel @(Compact ? "is-compact" : "is-focus")">
+<div class="clock-panel @(Compact ? "is-compact" : "is-focus") @(ShrinkClock ? "is-shrunk" : "")">
     @if (Compact)
     {
-        <div class="clock-panel-time">@Now.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)</div>
+        <div class="clock-panel-time">@Now.ToString(Status.HasIqamahCountdown ? "HH:mm" : "HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)</div>
     }
     else
     {
@@ -19,11 +19,18 @@
             Waktu Sholat @Status.ActiveBannerPrayerName!.Value.ToIndonesian()
         </div>
     }
+    else if (Status.HasIqamahCountdown)
+    {
+        <div class="countdown-block">
+            <div class="countdown-label">Menuju Iqamah @Status.IqamahWaitEntry!.Name.ToIndonesian()</div>
+            <div class="countdown-value">@FormatCountdown(Status.CountdownToIqamah)</div>
+        </div>
+    }
     else
     {
         <div class="countdown-block @(Status.IsImminent ? "is-imminent" : "")">
             <div class="countdown-label">Menuju @Status.NextPrayer.Name.ToIndonesian()</div>
-            <div class="countdown-value">@FormatCountdown(Status.CountdownToNext)</div>
+            <div class="countdown-value">@FormatCountdownWithoutSeconds(Status.CountdownToNext)</div>
         </div>
     }
 </div>
@@ -33,6 +40,8 @@
     [Parameter, EditorRequired] public DateTime Now { get; set; }
     [Parameter] public bool Compact { get; set; }
 
+    private bool ShrinkClock => Status.HasActiveBanner || Status.HasIqamahCountdown;
+
     private static string FormatCountdown(TimeSpan span)
     {
         var total = (int)Math.Ceiling(span.TotalSeconds);
@@ -40,5 +49,13 @@
         var m = total % 3600 / 60;
         var s = total % 60;
         return h > 0 ? $"{h:00}:{m:00}:{s:00}" : $"{m:00}:{s:00}";
+    }
+
+    private static string FormatCountdownWithoutSeconds(TimeSpan span)
+    {
+        var totalMinutes = (int)Math.Ceiling(span.TotalSeconds / 60.0);
+        var h = totalMinutes / 60;
+        var m = totalMinutes % 60;
+        return h > 0 ? $"{h:00}:{m:00}" : $"{m:00}";
     }
 }

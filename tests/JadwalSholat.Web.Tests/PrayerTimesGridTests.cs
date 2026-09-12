@@ -74,7 +74,6 @@ public class PrayerTimesGridTests : BunitContext
                 .Add(x => x.HighlightedPrayerName, PrayerName.Dhuhr));
 
             Assert.Contains("11:53", cut.Markup);
-            Assert.Contains("12:03", cut.Markup); // Dhuhr iqamah (azan + default 10 min)
         }
         finally
         {
@@ -83,18 +82,12 @@ public class PrayerTimesGridTests : BunitContext
     }
 
     [Fact]
-    public void ShowsIqamahTime_OnlyForObligatoryPrayers()
+    public void DoesNotShowIqamahTime_ForAnyPrayer()
     {
         var cut = Render<PrayerTimesGrid>(p => p
             .Add(x => x.Schedule, Schedule())
             .Add(x => x.HighlightedPrayerName, PrayerName.Fajr));
 
-        var cells = cut.FindAll(".prayer-grid-cell");
-        var shurukCell = cells[1]; // Fajr, Shuruk, Dhuhr, Asr, Maghrib, Isha
-        Assert.Contains("Terbit", shurukCell.TextContent);
-        Assert.DoesNotContain("Iqamah", shurukCell.TextContent);
-
-        var fajrCell = cells[0];
-        Assert.Contains("Iqamah", fajrCell.TextContent);
+        Assert.DoesNotContain("Iqamah", cut.Markup);
     }
 }

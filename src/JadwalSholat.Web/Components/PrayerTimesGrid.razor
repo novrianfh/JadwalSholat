@@ -8,10 +8,6 @@
         <div class="prayer-grid-cell @(isNext ? "is-next" : "")">
             <div class="prayer-grid-name">@name.ToIndonesian()</div>
             <div class="prayer-grid-time">@entry.AzanTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)</div>
-            @if (entry.IqamahTime is { } iqamah)
-            {
-                <div class="prayer-grid-iqamah">Iqamah @iqamah.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)</div>
-            }
         </div>
     }
 </div>
