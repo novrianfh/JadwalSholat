@@ -19,28 +19,29 @@
             {
                 <div class="mosque-address">@AppState.Settings.Mosque.Address</div>
             }
+            <div class="dashboard-date">
+                <span>@IndonesianCalendar.FormatGregorianLong(DateOnly.FromDateTime(_now))</span>
+                <span class="dashboard-date-hijri">@IndonesianCalendar.FormatHijri(DateOnly.FromDateTime(_now))</span>
+            </div>
         </header>
 
-        <div class="dashboard-date">
-            <span>@IndonesianCalendar.FormatGregorianLong(DateOnly.FromDateTime(_now))</span>
-            <span class="dashboard-date-hijri">@IndonesianCalendar.FormatHijri(DateOnly.FromDateTime(_now))</span>
+        <div class="dashboard-center">
+            @if (_loading)
+            {
+                <MudText Typo="Typo.h6" Class="dashboard-status-text">Memuat jadwal sholat...</MudText>
+            }
+            else if (_status is not null)
+            {
+                <ClockPanel Status="_status" Now="_now" Compact="!IsFocusMode" />
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Warning" Class="data-unavailable-alert">
+                    Jadwal sholat untuk kota ini belum tersedia untuk tanggal ini. Perbarui data jadwal
+                    atau pilih kota lain di <MudLink Href="/settings">Pengaturan</MudLink>.
+                </MudAlert>
+            }
         </div>
-
-        @if (_loading)
-        {
-            <MudText Typo="Typo.h6" Class="dashboard-status-text">Memuat jadwal sholat...</MudText>
-        }
-        else if (_status is not null)
-        {
-            <ClockPanel Status="_status" Now="_now" Compact="!IsFocusMode" />
-        }
-        else
-        {
-            <MudAlert Severity="Severity.Warning" Class="data-unavailable-alert">
-                Jadwal sholat untuk kota ini belum tersedia untuk tanggal ini. Perbarui data jadwal
-                atau pilih kota lain di <MudLink Href="/settings">Pengaturan</MudLink>.
-            </MudAlert>
-        }
     </div>
 
     @if (_window is not null && _status is not null)

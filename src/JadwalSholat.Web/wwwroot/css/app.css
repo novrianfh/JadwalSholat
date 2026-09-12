@@ -88,11 +88,15 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 0.75rem;
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
     text-align: center;
     color: #F4F7FB;
+}
+
+/* Pinned to the top of the screen, not part of the vertically-centered block below it. */
+.dashboard-header {
+    flex-shrink: 0;
 }
 
 .mosque-name {
@@ -103,6 +107,18 @@ html, body {
 .mosque-address {
     font-size: clamp(0.85rem, 2vw, 1.15rem);
     opacity: 0.75;
+}
+
+/* Everything except the header shares the remaining vertical space and centers within it. */
+.dashboard-center {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
 }
 
 .dashboard-date {
@@ -137,13 +153,42 @@ html, body {
     font-weight: 700;
     transition: font-size 0.4s ease;
 }
-.clock-panel.is-focus .clock-panel-time {
-    /* 300% of the original clamp(3rem, 11vw, 8rem), per explicit request to make the live clock dominant. */
-    font-size: clamp(9rem, 33vw, 24rem);
-}
 .clock-panel.is-compact .clock-panel-time {
     /* 300% of the original clamp(1.4rem, 5vw, 2.6rem). */
     font-size: clamp(4.2rem, 15vw, 7.8rem);
+}
+
+/* Focus mode: everything inside (HH:mm, :ss, the countdown, the active-prayer banner) is sized in `em`
+   relative to this ONE scalar, so the whole block scales as a single unit. Earlier this was several
+   independently-tuned vh/vw budgets (one per element) that each looked fine in isolation but summed to
+   more than the actual available height, overflowing into the header above and the grid below — sizing
+   everything off one number makes the total block height a function of *one* value, which is what
+   actually got tuned against the real available space (viewport minus header minus docked grid).
+   min(vh, vw) still keeps it self-adjusting to any aspect ratio: whichever is tighter wins. */
+.clock-panel.is-focus {
+    /* No upper cap: min(vh, vw) is already a proportion of the screen, not an absolute size, so it
+       self-limits correctly on any resolution — a fixed rem ceiling here would do the opposite of its
+       intent, making the clock proportionally *smaller* on a big display (e.g. a real mosque TV) once
+       the cap kicks in below what the screen has room for. Only a readable floor is needed. */
+    font-size: max(3rem, min(28vh, 25vw));
+}
+.clock-panel-time-split {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+}
+.clock-panel.is-focus .clock-panel-time-main {
+    font-size: 1.3em;
+    line-height: 1;
+}
+.clock-panel.is-focus .clock-panel-time-seconds {
+    font-size: 0.38em;
+    line-height: 1;
+    opacity: 0.75;
+}
+.clock-panel.is-compact .clock-panel-time-seconds {
+    opacity: 0.75;
 }
 
 .countdown-label {
@@ -151,6 +196,9 @@ html, body {
     opacity: 0.85;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+}
+.clock-panel.is-focus .countdown-label {
+    font-size: 0.16em;
 }
 .countdown-value {
     font-variant-numeric: tabular-nums;
@@ -162,6 +210,9 @@ html, body {
 .clock-panel.is-compact .countdown-value {
     font-size: clamp(1.1rem, 3.5vw, 1.8rem);
 }
+.clock-panel.is-focus .countdown-value {
+    font-size: 0.42em;
+}
 .countdown-block.is-imminent .countdown-value {
     color: #FF6B6B;
     animation: pulse 1s infinite;
@@ -172,6 +223,9 @@ html, body {
     font-weight: 800;
     color: #2FBF83;
     animation: pulse 1.4s infinite;
+}
+.clock-panel.is-focus .active-banner {
+    font-size: 0.48em;
 }
 
 @keyframes pulse {
@@ -240,14 +294,6 @@ html, body {
         flex: 0 0 auto;
         min-width: 24vw;
         scroll-snap-align: start;
-    }
-}
-
-/* The focused-mode clock's 300%-enlarged minimum (9rem) is wider than a phone screen and clipped both
-   edges of "11:52:34" — cap it so the enlargement stays dramatic without overflowing on narrow viewports. */
-@media (max-width: 480px) {
-    .clock-panel.is-focus .clock-panel-time {
-        font-size: clamp(3.5rem, 20vw, 5.5rem);
     }
 }
 

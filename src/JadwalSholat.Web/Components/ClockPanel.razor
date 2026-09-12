@@ -1,5 +1,17 @@
 <div class="clock-panel @(Compact ? "is-compact" : "is-focus")">
-    <div class="clock-panel-time">@Now.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)</div>
+    @if (Compact)
+    {
+        <div class="clock-panel-time">@Now.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)</div>
+    }
+    else
+    {
+        @* Split across two lines so HH:mm can grow far larger than a single "HH:mm:ss" line would allow
+           before its width overflows the screen — the seconds no longer constrain the main digits' size. *@
+        <div class="clock-panel-time clock-panel-time-split">
+            <span class="clock-panel-time-main">@Now.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)</span>
+            <span class="clock-panel-time-seconds">:@Now.ToString("ss", System.Globalization.CultureInfo.InvariantCulture)</span>
+        </div>
+    }
 
     @if (Status.HasActiveBanner)
     {

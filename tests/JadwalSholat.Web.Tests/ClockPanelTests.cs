@@ -23,15 +23,34 @@ public class ClockPanelTests : BunitContext
         }, Settings);
 
     [Fact]
-    public void RendersCurrentTime()
+    public void RendersCurrentTime_SplitAcrossHourMinuteAndSecondsInFocusMode()
     {
+        // Focus mode (Compact=false, the default) splits HH:mm from :ss onto separate elements so the
+        // main digits can grow far larger than a single "HH:mm:ss" line would allow (see app.css).
         var schedule = Schedule();
         var now = Date.ToDateTime(new TimeOnly(10, 30, 15));
         var status = PrayerStatusCalculator.Compute(null, schedule, null, now);
 
         var cut = Render<ClockPanel>(p => p.Add(x => x.Status, status).Add(x => x.Now, now));
 
+        Assert.Equal("10:30", cut.Find(".clock-panel-time-main").TextContent);
+        Assert.Equal(":15", cut.Find(".clock-panel-time-seconds").TextContent);
+    }
+
+    [Fact]
+    public void RendersCurrentTime_AsOneUnsplitLineInCompactMode()
+    {
+        var schedule = Schedule();
+        var now = Date.ToDateTime(new TimeOnly(10, 30, 15));
+        var status = PrayerStatusCalculator.Compute(null, schedule, null, now);
+
+        var cut = Render<ClockPanel>(p => p
+            .Add(x => x.Status, status)
+            .Add(x => x.Now, now)
+            .Add(x => x.Compact, true));
+
         Assert.Contains("10:30:15", cut.Markup);
+        Assert.Empty(cut.FindAll(".clock-panel-time-main"));
     }
 
     [Fact]
@@ -91,7 +110,8 @@ public class ClockPanelTests : BunitContext
 
             var cut = Render<ClockPanel>(p => p.Add(x => x.Status, status).Add(x => x.Now, now));
 
-            Assert.Contains("10:30:15", cut.Markup);
+            Assert.Equal("10:30", cut.Find(".clock-panel-time-main").TextContent);
+            Assert.Equal(":15", cut.Find(".clock-panel-time-seconds").TextContent);
         }
         finally
         {
