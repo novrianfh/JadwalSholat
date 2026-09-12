@@ -1,0 +1,43 @@
+@implements IDisposable
+
+<div class="wallpaper-carousel @(Enabled ? "is-visible" : "is-hidden")">
+    @for (var i = 0; i < Images.Count; i++)
+    {
+        var index = i;
+        <div class="wallpaper-layer @(index == _currentIndex ? "is-active" : "")"
+             style="background-image:url('@Images[index].Url')"></div>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<WallpaperItem> Images { get; set; } = [];
+    [Parameter] public int IntervalSeconds { get; set; } = 10;
+    [Parameter] public bool Enabled { get; set; } = true;
+
+    private int _currentIndex;
+    private Timer? _timer;
+    private int _timerIntervalSeconds = -1;
+
+    protected override void OnParametersSet()
+    {
+        var effectiveInterval = Math.Max(2, IntervalSeconds);
+        if (_timer is null || _timerIntervalSeconds != effectiveInterval)
+        {
+            _timer?.Dispose();
+            _timerIntervalSeconds = effectiveInterval;
+            var period = TimeSpan.FromSeconds(effectiveInterval);
+            _timer = new Timer(_ => Advance(), null, period, period);
+        }
+
+        if (_currentIndex >= Images.Count) _currentIndex = 0;
+    }
+
+    private void Advance()
+    {
+        if (Images.Count == 0) return;
+        _currentIndex = (_currentIndex + 1) % Images.Count;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => _timer?.Dispose();
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#04231a"/>
+      <stop offset="55%" stop-color="#0b3d2c"/>
+      <stop offset="100%" stop-color="#124a36"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#2fbf83" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#2fbf83" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="star1" width="120" height="120" patternUnits="userSpaceOnUse">
+      <g stroke="#e8b23a" stroke-width="1.2" fill="none" opacity="0.16">
+        <path d="M60 10 L74 46 L110 60 L74 74 L60 110 L46 74 L10 60 L46 46 Z"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#sky1)"/>
+  <rect width="1920" height="1080" fill="url(#star1)"/>
+  <rect y="740" width="1920" height="340" fill="url(#glow1)"/>
+  <!-- mosque silhouette -->
+  <g fill="#031a13">
+    <rect x="0" y="900" width="1920" height="180"/>
+    <circle cx="960" cy="840" r="150"/>
+    <rect x="810" y="840" width="300" height="160"/>
+    <rect x="930" y="700" width="60" height="150" rx="10"/>
+    <polygon points="960,660 990,700 930,700"/>
+    <circle cx="960" cy="648" r="7"/>
+    <rect x="300" y="780" width="34" height="220"/>
+    <polygon points="317,730 340,780 294,780"/>
+    <rect x="1580" y="780" width="34" height="220"/>
+    <polygon points="1597,730 1620,780 1574,780"/>
+  </g>
+</svg>

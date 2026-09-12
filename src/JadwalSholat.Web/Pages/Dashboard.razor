@@ -1,0 +1,93 @@
+@page "/"
+@inject AppStateService AppState
+@inject PrayerTimeRepository Repository
+@implements IDisposable
+
+<PageTitle>@AppState.Settings.Mosque.Name - Jadwal Sholat</PageTitle>
+
+<div class="dashboard-root">
+    <WallpaperCarousel Images="AppState.Settings.Wallpaper.Items"
+                       IntervalSeconds="AppState.Settings.Wallpaper.IntervalSeconds"
+                       Enabled="AppState.Settings.Wallpaper.Enabled && !IsFocusMode" />
+
+    <div class="dashboard-scrim @(IsFocusMode ? "is-focus" : "is-ambient")"></div>
+
+    <div class="dashboard-content">
+        <header class="dashboard-header">
+            <div class="mosque-name">@AppState.Settings.Mosque.Name</div>
+            @if (!string.IsNullOrWhiteSpace(AppState.Settings.Mosque.Address))
+            {
+                <div class="mosque-address">@AppState.Settings.Mosque.Address</div>
+            }
+        </header>
+
+        <div class="dashboard-date">
+            <span>@IndonesianCalendar.FormatGregorianLong(DateOnly.FromDateTime(_now))</span>
+            <span class="dashboard-date-hijri">@IndonesianCalendar.FormatHijri(DateOnly.FromDateTime(_now))</span>
+        </div>
+
+        @if (_loading)
+        {
+            <MudText Typo="Typo.h6" Class="dashboard-status-text">Memuat jadwal sholat...</MudText>
+        }
+        else if (_status is not null)
+        {
+            <ClockPanel Status="_status" Now="_now" Compact="!IsFocusMode" />
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Warning" Class="data-unavailable-alert">
+                Jadwal sholat untuk kota ini belum tersedia untuk tanggal ini. Perbarui data jadwal
+                atau pilih kota lain di <MudLink Href="/settings">Pengaturan</MudLink>.
+            </MudAlert>
+        }
+    </div>
+
+    @if (_window is not null && _status is not null)
+    {
+        <PrayerTimesGrid Schedule="_window.Today" CurrentPeriodName="_status.CurrentPeriodPrayerName" />
+    }
+</div>
+
+@code {
+    private DateTime _now = DateTime.Now;
+    private ThreeDayWindow? _window;
+    private PrayerStatus? _status;
+    private bool _loading = true;
+    private Timer? _timer;
+
+    private bool IsFocusMode => _status is { IsImminent: true } or { HasActiveBanner: true };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AppState.EnsureLoadedAsync();
+        AppState.OnChange += HandleSettingsChanged;
+
+        await TickAsync();
+        _timer = new Timer(_ => InvokeAsync(TickAsync), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+
+    private void HandleSettingsChanged() => _ = InvokeAsync(TickAsync);
+
+    private async Task TickAsync()
+    {
+        try
+        {
+            _now = DateTime.Now;
+            var today = DateOnly.FromDateTime(_now);
+            _window = await Repository.GetWindowAsync(AppState.Settings.CityId, AppState.Settings, today);
+            _status = _window is null ? null : PrayerStatusCalculator.Compute(_window.Yesterday, _window.Today, _window.Tomorrow, _now);
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        AppState.OnChange -= HandleSettingsChanged;
+    }
+}

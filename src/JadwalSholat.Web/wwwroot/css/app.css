@@ -1,0 +1,266 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #0B1220;
+    color: #F4F7FB;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+#app {
+    height: 100%;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    color: #222;
+}
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+.app-main-content {
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ---------- Dashboard ---------- */
+
+.dashboard-root {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.wallpaper-carousel {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    transition: opacity 0.8s ease;
+}
+.wallpaper-carousel.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.wallpaper-layer {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+}
+.wallpaper-layer.is-active {
+    opacity: 1;
+}
+
+.dashboard-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    transition: background 1s ease;
+}
+.dashboard-scrim.is-ambient {
+    background: linear-gradient(180deg, rgba(4, 8, 18, 0.45), rgba(4, 8, 18, 0.75));
+}
+.dashboard-scrim.is-focus {
+    background: #0B1220;
+}
+
+.dashboard-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #F4F7FB;
+}
+
+.mosque-name {
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+.mosque-address {
+    font-size: clamp(0.85rem, 2vw, 1.15rem);
+    opacity: 0.75;
+}
+
+.dashboard-date {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: clamp(0.95rem, 2.2vw, 1.4rem);
+    opacity: 0.9;
+}
+.dashboard-date-hijri {
+    opacity: 0.7;
+}
+
+.dashboard-status-text {
+    opacity: 0.8;
+}
+
+/* ---------- Clock panel ---------- */
+
+.clock-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    transition: gap 0.4s ease;
+}
+
+.clock-panel-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    transition: font-size 0.4s ease;
+}
+.clock-panel.is-focus .clock-panel-time {
+    font-size: clamp(3rem, 11vw, 8rem);
+}
+.clock-panel.is-compact .clock-panel-time {
+    font-size: clamp(1.4rem, 5vw, 2.6rem);
+}
+
+.countdown-label {
+    font-size: clamp(0.9rem, 2.2vw, 1.3rem);
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.countdown-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: #E8B23A;
+    font-size: clamp(1.8rem, 7vw, 4rem);
+    transition: font-size 0.4s ease, color 0.3s ease;
+}
+.clock-panel.is-compact .countdown-value {
+    font-size: clamp(1.1rem, 3.5vw, 1.8rem);
+}
+.countdown-block.is-imminent .countdown-value {
+    color: #FF6B6B;
+    animation: pulse 1s infinite;
+}
+
+.active-banner {
+    font-size: clamp(1.8rem, 6.5vw, 4rem);
+    font-weight: 800;
+    color: #2FBF83;
+    animation: pulse 1.4s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+/* ---------- Prayer times grid (docked to bottom) ---------- */
+
+.prayer-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    width: 100%;
+    background: rgba(4, 8, 18, 0.6);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
+}
+.prayer-grid-cell {
+    padding: 0.6rem 0.4rem 0.8rem;
+    text-align: center;
+    color: #F4F7FB;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.4s ease;
+}
+.prayer-grid-cell:last-child {
+    border-right: none;
+}
+.prayer-grid-name {
+    font-size: clamp(0.65rem, 1.4vw, 0.95rem);
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.prayer-grid-time {
+    font-size: clamp(1rem, 2.8vw, 1.7rem);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.prayer-grid-iqamah {
+    font-size: clamp(0.6rem, 1.2vw, 0.8rem);
+    opacity: 0.6;
+}
+.prayer-grid-cell.is-current {
+    background: rgba(47, 191, 131, 0.25);
+    box-shadow: inset 0 3px 0 #2FBF83;
+}
+
+/* Narrow screens: a fixed-height, horizontally scrollable single row instead of wrapping to
+   multiple rows — wrapping grows the grid's height unpredictably and the dashboard has no page
+   scroll to compensate, which was clipping the last row off the bottom of the viewport. */
+@media (max-width: 700px) {
+    .prayer-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+    }
+    .prayer-grid-cell {
+        flex: 0 0 auto;
+        min-width: 26vw;
+        scroll-snap-align: start;
+    }
+}
+
+/* ---------- Settings shortcut ---------- */
+
+.settings-fab {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 50;
+    background: rgba(4, 8, 18, 0.45) !important;
+}
+
+/* ---------- Settings page ---------- */
+
+.settings-page {
+    color: inherit;
+}
+.wallpaper-list-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.wallpaper-thumb {
+    width: 64px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}

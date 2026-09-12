@@ -1,0 +1,32 @@
+<div class="clock-panel @(Compact ? "is-compact" : "is-focus")">
+    <div class="clock-panel-time">@Now.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)</div>
+
+    @if (Status.HasActiveBanner)
+    {
+        <div class="active-banner" role="status">
+            Waktu Sholat @Status.ActiveBannerPrayerName!.Value.ToIndonesian()
+        </div>
+    }
+    else
+    {
+        <div class="countdown-block @(Status.IsImminent ? "is-imminent" : "")">
+            <div class="countdown-label">Menuju @Status.NextPrayer.Name.ToIndonesian()</div>
+            <div class="countdown-value">@FormatCountdown(Status.CountdownToNext)</div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public PrayerStatus Status { get; set; } = null!;
+    [Parameter, EditorRequired] public DateTime Now { get; set; }
+    [Parameter] public bool Compact { get; set; }
+
+    private static string FormatCountdown(TimeSpan span)
+    {
+        var total = (int)Math.Ceiling(span.TotalSeconds);
+        var h = total / 3600;
+        var m = total % 3600 / 60;
+        var s = total % 60;
+        return h > 0 ? $"{h:00}:{m:00}:{s:00}" : $"{m:00}:{s:00}";
+    }
+}

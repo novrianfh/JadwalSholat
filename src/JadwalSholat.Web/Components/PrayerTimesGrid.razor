@@ -1,0 +1,38 @@
+@inject IJSRuntime Js
+
+<div class="prayer-grid">
+    @foreach (var name in PrayerNames.Chronological)
+    {
+        var entry = Schedule.Get(name);
+        var isCurrent = name == CurrentPeriodName;
+        <div class="prayer-grid-cell @(isCurrent ? "is-current" : "")">
+            <div class="prayer-grid-name">@name.ToIndonesian()</div>
+            <div class="prayer-grid-time">@entry.AzanTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)</div>
+            @if (entry.IqamahTime is { } iqamah)
+            {
+                <div class="prayer-grid-iqamah">Iqamah @iqamah.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public PrayerDaySchedule Schedule { get; set; } = null!;
+    [Parameter, EditorRequired] public PrayerName CurrentPeriodName { get; set; }
+
+    private PrayerName? _lastScrolledTo;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_lastScrolledTo == CurrentPeriodName) return;
+        _lastScrolledTo = CurrentPeriodName;
+        try
+        {
+            await Js.InvokeVoidAsync("jadwalSholatInterop.scrollCurrentPrayerIntoView");
+        }
+        catch (JSException)
+        {
+            // Non-critical cosmetic behaviour; ignore if the DOM isn't ready yet.
+        }
+    }
+}
