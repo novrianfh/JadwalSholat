@@ -67,17 +67,17 @@ public class ClockPanelTests : BunitContext
     }
 
     [Fact]
-    public void CountdownToNextPrayer_OmitsSeconds()
+    public void CountdownToNextPrayer_IncludesSeconds()
     {
         var schedule = Schedule();
-        // Dhuhr azan at 11:53; 1h 29m 45s before it, seconds must not appear in the countdown value.
+        // Dhuhr azan at 11:53:00; 1h 29m 45s before it.
         var now = Date.ToDateTime(new TimeOnly(10, 23, 15));
         var status = PrayerStatusCalculator.Compute(null, schedule, null, now);
 
         var cut = Render<ClockPanel>(p => p.Add(x => x.Status, status).Add(x => x.Now, now));
 
         var value = cut.Find(".countdown-value").TextContent;
-        Assert.Equal("01:30", value); // 1h 29m 45s rounds up to 1h 30m with seconds dropped
+        Assert.Equal("01:29:45", value);
     }
 
     [Fact]

@@ -30,7 +30,7 @@
     {
         <div class="countdown-block @(Status.IsImminent ? "is-imminent" : "")">
             <div class="countdown-label">Menuju @Status.NextPrayer.Name.ToIndonesian()</div>
-            <div class="countdown-value">@FormatCountdownWithoutSeconds(Status.CountdownToNext)</div>
+            <div class="countdown-value">@FormatCountdown(Status.CountdownToNext)</div>
         </div>
     }
 </div>
@@ -49,13 +49,5 @@
         var m = total % 3600 / 60;
         var s = total % 60;
         return h > 0 ? $"{h:00}:{m:00}:{s:00}" : $"{m:00}:{s:00}";
-    }
-
-    private static string FormatCountdownWithoutSeconds(TimeSpan span)
-    {
-        var totalMinutes = (int)Math.Ceiling(span.TotalSeconds / 60.0);
-        var h = totalMinutes / 60;
-        var m = totalMinutes % 60;
-        return h > 0 ? $"{h:00}:{m:00}" : $"{m:00}";
     }
 }
