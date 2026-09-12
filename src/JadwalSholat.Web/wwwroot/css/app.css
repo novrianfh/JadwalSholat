@@ -114,7 +114,7 @@ html, body {
     opacity: 0.9;
 }
 .dashboard-date-hijri {
-    opacity: 0.7;
+    opacity: 0.9;
 }
 
 .dashboard-status-text {
@@ -212,8 +212,8 @@ html, body {
     font-variant-numeric: tabular-nums;
 }
 .prayer-grid-iqamah {
-    font-size: clamp(0.6rem, 1.2vw, 0.8rem);
-    opacity: 0.6;
+    font-size: clamp(0.75rem, 1.5vw, 1.05rem);
+    opacity: 0.8;
 }
 .prayer-grid-cell.is-current {
     background: rgba(47, 191, 131, 0.25);
@@ -229,10 +229,14 @@ html, body {
         overflow-x: auto;
         scroll-snap-type: x proximity;
         -webkit-overflow-scrolling: touch;
+        /* Fades the right edge so a row that exactly fills the viewport still visibly hints
+           "more content, swipe" instead of looking like a hard, final 4-prayer cutoff. */
+        mask-image: linear-gradient(to right, black 88%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, black 88%, transparent 100%);
     }
     .prayer-grid-cell {
         flex: 0 0 auto;
-        min-width: 26vw;
+        min-width: 24vw;
         scroll-snap-align: start;
     }
 }

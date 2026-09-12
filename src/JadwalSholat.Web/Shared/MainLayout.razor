@@ -7,7 +7,7 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudMainContent Class="app-main-content">
+<MudMainContent Class="@(IsSettingsPage ? "" : "app-main-content")">
     @Body
 
     @if (!IsSettingsPage)
