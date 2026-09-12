@@ -30,22 +30,33 @@ public class PrayerTimesGridTests : BunitContext
     {
         var cut = Render<PrayerTimesGrid>(p => p
             .Add(x => x.Schedule, Schedule())
-            .Add(x => x.CurrentPeriodName, PrayerName.Dhuhr));
+            .Add(x => x.HighlightedPrayerName, PrayerName.Dhuhr));
 
         var names = cut.FindAll(".prayer-grid-name").Select(e => e.TextContent).ToList();
         Assert.Equal(["Subuh", "Terbit", "Dzuhur", "Ashar", "Maghrib", "Isya"], names);
     }
 
     [Fact]
-    public void HighlightsOnlyTheCurrentPeriodCell()
+    public void HighlightsOnlyTheGivenUpcomingPrayerCell()
+    {
+        // e.g. now 11:03, Dzuhur 11:38 -> Dzuhur (the upcoming prayer) is highlighted, not the one just passed.
+        var cut = Render<PrayerTimesGrid>(p => p
+            .Add(x => x.Schedule, Schedule())
+            .Add(x => x.HighlightedPrayerName, PrayerName.Asr));
+
+        var highlighted = cut.FindAll(".prayer-grid-cell.is-next");
+        Assert.Single(highlighted);
+        Assert.Contains("Ashar", highlighted[0].TextContent);
+    }
+
+    [Fact]
+    public void NullHighlightedPrayerName_HighlightsNothing()
     {
         var cut = Render<PrayerTimesGrid>(p => p
             .Add(x => x.Schedule, Schedule())
-            .Add(x => x.CurrentPeriodName, PrayerName.Asr));
+            .Add(x => x.HighlightedPrayerName, (PrayerName?)null));
 
-        var current = cut.FindAll(".prayer-grid-cell.is-current");
-        Assert.Single(current);
-        Assert.Contains("Ashar", current[0].TextContent);
+        Assert.Empty(cut.FindAll(".prayer-grid-cell.is-next"));
     }
 
     [Fact]
@@ -60,7 +71,7 @@ public class PrayerTimesGridTests : BunitContext
         {
             var cut = Render<PrayerTimesGrid>(p => p
                 .Add(x => x.Schedule, Schedule())
-                .Add(x => x.CurrentPeriodName, PrayerName.Dhuhr));
+                .Add(x => x.HighlightedPrayerName, PrayerName.Dhuhr));
 
             Assert.Contains("11:53", cut.Markup);
             Assert.Contains("12:03", cut.Markup); // Dhuhr iqamah (azan + default 10 min)
@@ -76,7 +87,7 @@ public class PrayerTimesGridTests : BunitContext
     {
         var cut = Render<PrayerTimesGrid>(p => p
             .Add(x => x.Schedule, Schedule())
-            .Add(x => x.CurrentPeriodName, PrayerName.Fajr));
+            .Add(x => x.HighlightedPrayerName, PrayerName.Fajr));
 
         var cells = cut.FindAll(".prayer-grid-cell");
         var shurukCell = cells[1]; // Fajr, Shuruk, Dhuhr, Asr, Maghrib, Isha

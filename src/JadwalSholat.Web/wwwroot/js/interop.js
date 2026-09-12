@@ -1,6 +1,6 @@
 window.jadwalSholatInterop = {
     scrollCurrentPrayerIntoView: function () {
-        var el = document.querySelector('.prayer-grid-cell.is-current');
+        var el = document.querySelector('.prayer-grid-cell.is-next');
         if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     },
     getCurrentPosition: function () {

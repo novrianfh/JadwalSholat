@@ -138,10 +138,12 @@ html, body {
     transition: font-size 0.4s ease;
 }
 .clock-panel.is-focus .clock-panel-time {
-    font-size: clamp(3rem, 11vw, 8rem);
+    /* 300% of the original clamp(3rem, 11vw, 8rem), per explicit request to make the live clock dominant. */
+    font-size: clamp(9rem, 33vw, 24rem);
 }
 .clock-panel.is-compact .clock-panel-time {
-    font-size: clamp(1.4rem, 5vw, 2.6rem);
+    /* 300% of the original clamp(1.4rem, 5vw, 2.6rem). */
+    font-size: clamp(4.2rem, 15vw, 7.8rem);
 }
 
 .countdown-label {
@@ -215,7 +217,7 @@ html, body {
     font-size: clamp(0.75rem, 1.5vw, 1.05rem);
     opacity: 0.8;
 }
-.prayer-grid-cell.is-current {
+.prayer-grid-cell.is-next {
     background: rgba(47, 191, 131, 0.25);
     box-shadow: inset 0 3px 0 #2FBF83;
 }
@@ -238,6 +240,14 @@ html, body {
         flex: 0 0 auto;
         min-width: 24vw;
         scroll-snap-align: start;
+    }
+}
+
+/* The focused-mode clock's 300%-enlarged minimum (9rem) is wider than a phone screen and clipped both
+   edges of "11:52:34" — cap it so the enlargement stays dramatic without overflowing on narrow viewports. */
+@media (max-width: 480px) {
+    .clock-panel.is-focus .clock-panel-time {
+        font-size: clamp(3.5rem, 20vw, 5.5rem);
     }
 }
 

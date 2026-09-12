@@ -4,8 +4,8 @@
     @foreach (var name in PrayerNames.Chronological)
     {
         var entry = Schedule.Get(name);
-        var isCurrent = name == CurrentPeriodName;
-        <div class="prayer-grid-cell @(isCurrent ? "is-current" : "")">
+        var isNext = name == HighlightedPrayerName;
+        <div class="prayer-grid-cell @(isNext ? "is-next" : "")">
             <div class="prayer-grid-name">@name.ToIndonesian()</div>
             <div class="prayer-grid-time">@entry.AzanTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)</div>
             @if (entry.IqamahTime is { } iqamah)
@@ -18,14 +18,19 @@
 
 @code {
     [Parameter, EditorRequired] public PrayerDaySchedule Schedule { get; set; } = null!;
-    [Parameter, EditorRequired] public PrayerName CurrentPeriodName { get; set; }
+
+    /// <summary>The prayer to highlight in the grid — the upcoming one (Requirement.md #17: "Highlighting the
+    /// active prayer time row dynamically"), not the one whose period we're currently in. E.g. at 11:03 with
+    /// Dzuhur at 11:38, Dzuhur is highlighted so viewers can see what's coming up next. Null once the next
+    /// prayer has rolled over past today (nothing left to highlight in today's row).</summary>
+    [Parameter] public PrayerName? HighlightedPrayerName { get; set; }
 
     private PrayerName? _lastScrolledTo;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_lastScrolledTo == CurrentPeriodName) return;
-        _lastScrolledTo = CurrentPeriodName;
+        if (_lastScrolledTo == HighlightedPrayerName) return;
+        _lastScrolledTo = HighlightedPrayerName;
         try
         {
             await Js.InvokeVoidAsync("jadwalSholatInterop.scrollCurrentPrayerIntoView");

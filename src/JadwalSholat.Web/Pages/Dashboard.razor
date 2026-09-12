@@ -45,7 +45,7 @@
 
     @if (_window is not null && _status is not null)
     {
-        <PrayerTimesGrid Schedule="_window.Today" CurrentPeriodName="_status.CurrentPeriodPrayerName" />
+        <PrayerTimesGrid Schedule="_window.Today" HighlightedPrayerName="TodaysHighlightedPrayerName" />
     }
 </div>
 
@@ -57,6 +57,9 @@
     private Timer? _timer;
 
     private bool IsFocusMode => _status is { IsImminent: true } or { HasActiveBanner: true };
+
+    private PrayerName? TodaysHighlightedPrayerName =>
+        _status is not null && _window is not null ? _status.HighlightedPrayerNameFor(_window.Today.Date) : null;
 
     protected override async Task OnInitializedAsync()
     {

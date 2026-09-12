@@ -11,4 +11,12 @@ public sealed record PrayerStatus(
 {
     /// <summary>True in the last 60 seconds before <see cref="NextPrayer"/>'s Azan (Requirement.md #20).</summary>
     public bool HasActiveBanner => ActiveBannerPrayerName is not null;
+
+    /// <summary>Which row a grid for <paramref name="gridDate"/> should highlight (Requirement.md #17) —
+    /// the upcoming prayer, e.g. at 11:03 with Dzuhur at 11:38, Dzuhur lights up rather than whatever prayer's
+    /// period we're currently in. Null once <see cref="NextPrayer"/> has rolled over past <paramref name="gridDate"/>
+    /// (e.g. all evening after Isha, when the next prayer is tomorrow's Fajr): nothing in today's grid is
+    /// "upcoming" any more at that point, so today's Fajr row must not light up as if it were.</summary>
+    public PrayerName? HighlightedPrayerNameFor(DateOnly gridDate) =>
+        NextPrayer.NominalDate == gridDate ? NextPrayer.Name : null;
 }

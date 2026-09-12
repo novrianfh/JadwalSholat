@@ -220,4 +220,35 @@ public class PrayerStatusCalculatorTests
 
         Assert.Equal(PrayerName.Isha, status.ActiveBannerPrayerName);
     }
+
+    // ---- HighlightedPrayerNameFor (which grid row lights up) ----
+
+    [Fact]
+    public void HighlightedPrayerNameFor_UpcomingPrayerLaterToday_ReturnsIt()
+    {
+        // now 11:03, Dzuhur 11:38 -> Dzuhur is highlighted (the upcoming prayer), not Terbit (the current period).
+        var today = Schedule(Today);
+        var now = Today.ToDateTime(new TimeOnly(11, 3));
+
+        var status = PrayerStatusCalculator.Compute(null, today, null, now);
+
+        Assert.Equal(PrayerName.Dhuhr, status.NextPrayer.Name);
+        Assert.Equal(PrayerName.Dhuhr, status.HighlightedPrayerNameFor(Today));
+    }
+
+    [Fact]
+    public void HighlightedPrayerNameFor_NextPrayerRolledOverToTomorrow_ReturnsNullForTodaysGrid()
+    {
+        // After Isha, NextPrayer is tomorrow's Fajr. Today's Fajr row already happened hours ago and
+        // must not light up just because the *name* "Fajr" matches — it belongs to a different date.
+        var today = Schedule(Today);
+        var tomorrow = Schedule(Today.AddDays(1));
+        var now = today.Get(PrayerName.Isha).AzanDateTime.AddHours(2);
+
+        var status = PrayerStatusCalculator.Compute(null, today, tomorrow, now);
+
+        Assert.Equal(PrayerName.Fajr, status.NextPrayer.Name); // tomorrow's Fajr
+        Assert.Null(status.HighlightedPrayerNameFor(Today)); // nothing lights up in *today's* grid
+        Assert.Equal(PrayerName.Fajr, status.HighlightedPrayerNameFor(Today.AddDays(1))); // but tomorrow's grid would
+    }
 }
