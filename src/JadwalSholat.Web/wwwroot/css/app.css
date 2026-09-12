@@ -32,6 +32,10 @@ html, body {
 .app-main-content {
     height: 100vh;
     overflow: hidden;
+    /* MudBlazor's .mud-main-content reserves top padding equal to the app bar's height by default.
+       This app has no MudAppBar, but the padding still applied, pushing dashboard-root's own
+       height:100vh 64px past the bottom of the viewport and clipping the prayer-times grid. */
+    padding-top: 0;
 }
 
 /* ---------- Dashboard ---------- */
@@ -156,8 +160,10 @@ html, body {
     font-weight: 700;
     transition: font-size 0.4s ease;
 }
+/* clamp() (not a flat 16rem) so the clock shrinks on short/wide viewports instead of overflowing past
+   the header and pushing the prayer-times grid off the bottom of the screen. */
 .clock-panel.is-compact .clock-panel-time {
-    font-size: 16rem;
+    font-size: clamp(4rem, 20vh, 16rem);
 }
 
 /* Focus mode: everything inside (HH:mm, :ss, the countdown, the active-prayer banner) is sized in `em`
