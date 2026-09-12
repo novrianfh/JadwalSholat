@@ -331,6 +331,96 @@ html, body {
 
 .settings-page {
     color: inherit;
+    min-height: 100vh;
+    width: 100%;
+    padding: 1.5rem 2rem 3rem;
+    box-sizing: border-box;
+}
+.settings-topbar {
+    margin-bottom: 1.5rem;
+}
+.settings-loading {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+}
+.settings-shell {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+.settings-sidebar {
+    flex: 0 0 240px;
+    position: sticky;
+    top: 1.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+.settings-nav-link.danger {
+    color: var(--mud-palette-error);
+}
+.settings-nav-link {
+    border-radius: 6px;
+    margin: 2px 0;
+}
+.settings-nav-link.active {
+    background: var(--mud-palette-primary-hover);
+    position: relative;
+}
+.settings-nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 3px;
+    background: var(--mud-palette-primary);
+}
+.settings-nav-link.active .mud-nav-link-text,
+.settings-nav-link.active .mud-icon-root {
+    color: var(--mud-palette-primary);
+    font-weight: 600;
+}
+.settings-nav-link.danger.active {
+    background: var(--mud-palette-error-hover);
+}
+.settings-nav-link.danger.active::before {
+    background: var(--mud-palette-error);
+}
+.settings-nav-link.danger.active .mud-nav-link-text,
+.settings-nav-link.danger.active .mud-icon-root {
+    color: var(--mud-palette-error);
+}
+.settings-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 1.5rem 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+@media (max-width: 900px) {
+    .settings-page {
+        padding: 1rem;
+    }
+    .settings-shell {
+        flex-direction: column;
+    }
+    .settings-sidebar {
+        flex: 1 1 auto;
+        width: 100%;
+        position: static;
+    }
+    .settings-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+    .settings-content {
+        width: 100%;
+        padding: 1.25rem;
+    }
 }
 .wallpaper-list-row {
     display: flex;

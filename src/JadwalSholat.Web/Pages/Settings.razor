@@ -5,150 +5,238 @@
 
 <PageTitle>Pengaturan - Jadwal Sholat</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="settings-page py-8">
-    <div class="d-flex align-center mb-4" style="gap: 12px;">
+<div class="settings-page">
+    <div class="settings-topbar d-flex align-center" style="gap: 12px;">
         <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="." aria-label="Kembali" />
         <MudText Typo="Typo.h4">Pengaturan</MudText>
     </div>
 
     @if (_draft is null)
     {
-        <MudProgressCircular Indeterminate="true" />
+        <div class="settings-loading">
+            <MudProgressCircular Indeterminate="true" />
+        </div>
     }
     else
     {
-        <MudTabs Elevation="1" Rounded="true" ApplyEffectsToContainer="true">
-            <MudTabPanel Text="Lokasi">
-                <MudStack Spacing="4" Class="pa-4">
-                    <MudRadioGroup T="LocationMode" Value="_draft.LocationMode" ValueChanged="v => _draft.LocationMode = v">
-                        <MudRadio Value="LocationMode.Manual" Color="Color.Primary">Pilih kota manual</MudRadio>
-                        <MudRadio Value="LocationMode.AutoDetect" Color="Color.Primary">Deteksi otomatis (GPS browser)</MudRadio>
-                    </MudRadioGroup>
-
-                    @if (_draft.LocationMode == LocationMode.Manual)
+        <div class="settings-shell">
+            <MudPaper Class="settings-sidebar" Elevation="0">
+                <MudNavMenu Class="settings-nav">
+                    @foreach (var item in _sections)
                     {
-                        <MudSelect T="string" Label="Kota" @bind-Value="_draft.CityId" Variant="Variant.Outlined">
-                            @foreach (var city in City.Bundled)
+                        <MudNavLink Icon="@item.Icon"
+                                    Class="@(item.Id == _active ? "settings-nav-link active" : "settings-nav-link")"
+                                    OnClick="() => _active = item.Id">
+                            @item.Label
+                        </MudNavLink>
+                    }
+                    <MudDivider Class="my-2" />
+                    <MudNavLink Icon="@Icons.Material.Filled.RestartAlt"
+                                Class="@(_active == Section.Reset ? "settings-nav-link danger active" : "settings-nav-link danger")"
+                                OnClick="() => _active = Section.Reset">
+                        Reset
+                    </MudNavLink>
+                </MudNavMenu>
+            </MudPaper>
+
+            <MudPaper Class="settings-content" Elevation="0">
+                @switch (_active)
+                {
+                    case Section.Lokasi:
+                        <MudText Typo="Typo.h6" Class="mb-4">Lokasi</MudText>
+                        <MudStack Spacing="4">
+                            <MudRadioGroup T="LocationMode" Value="_draft.LocationMode" ValueChanged="v => _draft.LocationMode = v">
+                                <MudRadio Value="LocationMode.Manual" Color="Color.Primary">Pilih kota manual</MudRadio>
+                                <MudRadio Value="LocationMode.AutoDetect" Color="Color.Primary">Deteksi otomatis (GPS browser)</MudRadio>
+                            </MudRadioGroup>
+
+                            @if (_draft.LocationMode == LocationMode.Manual)
                             {
-                                <MudSelectItem Value="@city.Id">@city.Name (@city.Region)</MudSelectItem>
+                                <MudSelect T="string" Label="Kota" @bind-Value="_draft.CityId" Variant="Variant.Outlined">
+                                    @foreach (var city in City.Bundled)
+                                    {
+                                        <MudSelectItem Value="@city.Id">@city.Name (@city.Region)</MudSelectItem>
+                                    }
+                                </MudSelect>
                             }
-                        </MudSelect>
-                    }
-                    else
-                    {
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="DetectLocationAsync" Disabled="_detecting">
-                            @(_detecting ? "Mendeteksi..." : "Deteksi Lokasi Sekarang")
-                        </MudButton>
-                        <MudText Typo="Typo.body2">
-                            Kota terpilih saat ini: <b>@(City.FindById(_draft.CityId)?.Name ?? "-")</b>
+                            else
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="DetectLocationAsync" Disabled="_detecting">
+                                    @(_detecting ? "Mendeteksi..." : "Deteksi Lokasi Sekarang")
+                                </MudButton>
+                                <MudText Typo="Typo.body2">
+                                    Kota terpilih saat ini: <b>@(City.FindById(_draft.CityId)?.Name ?? "-")</b>
+                                </MudText>
+                                <MudAlert Severity="Severity.Info" Dense="true">
+                                    Deteksi otomatis mencocokkan lokasi GPS Anda dengan kota terdekat dari 5 kota yang
+                                    didukung: Jakarta, Bandung, Semarang, Yogyakarta, Surabaya.
+                                </MudAlert>
+                            }
+                        </MudStack>
+                        break;
+
+                    case Section.Masjid:
+                        <MudText Typo="Typo.h6" Class="mb-4">Masjid</MudText>
+                        <MudStack Spacing="4">
+                            <MudTextField @bind-Value="_draft.Mosque.Name" Label="Nama Masjid" Variant="Variant.Outlined" />
+                            <MudTextField @bind-Value="_draft.Mosque.Address" Label="Alamat Masjid" Variant="Variant.Outlined" Lines="2" />
+                        </MudStack>
+                        break;
+
+                    case Section.PenyesuaianWaktu:
+                        <MudText Typo="Typo.h6" Class="mb-1">Penyesuaian Waktu</MudText>
+                        <MudText Typo="Typo.body2" Class="mb-4">
+                            Menambah atau mengurangi jadwal waktu sholat dari API, dalam menit. Boleh negatif.
                         </MudText>
-                        <MudAlert Severity="Severity.Info" Dense="true">
-                            Deteksi otomatis mencocokkan lokasi GPS Anda dengan kota terdekat dari 5 kota yang
-                            didukung: Jakarta, Bandung, Semarang, Yogyakarta, Surabaya.
+                        <MudStack Spacing="3">
+                            @foreach (var name in PrayerNames.Chronological)
+                            {
+                                <MudNumericField T="int" Label="@name.ToIndonesian()" Variant="Variant.Outlined"
+                                                 Value="_draft.TimeAdjustmentMinutes[name]"
+                                                 ValueChanged="v => _draft.TimeAdjustmentMinutes[name] = v"
+                                                 Min="-60" Max="60" Adornment="Adornment.End" AdornmentText="menit" />
+                            }
+                        </MudStack>
+                        break;
+
+                    case Section.Iqamah:
+                        <MudText Typo="Typo.h6" Class="mb-1">Iqamah</MudText>
+                        <MudText Typo="Typo.body2" Class="mb-4">Jeda dari Azan ke Iqamah, dalam menit. Default 10 menit.</MudText>
+                        <MudStack Spacing="3">
+                            @foreach (var name in PrayerNames.Obligatory)
+                            {
+                                <MudNumericField T="int" Label="@name.ToIndonesian()" Variant="Variant.Outlined"
+                                                 Value="_draft.IqamahMinutes[name]"
+                                                 ValueChanged="v => _draft.IqamahMinutes[name] = v"
+                                                 Min="0" Max="60" Adornment="Adornment.End" AdornmentText="menit" />
+                            }
+                        </MudStack>
+                        break;
+
+                    case Section.DurasiSholat:
+                        <MudText Typo="Typo.h6" Class="mb-1">Durasi Sholat</MudText>
+                        <MudText Typo="Typo.body2" Class="mb-4">
+                            Lama tampilan "Waktu Sholat" aktif, dihitung dari waktu Iqamah. Default 15 menit.
+                        </MudText>
+                        <MudStack Spacing="3">
+                            @foreach (var name in PrayerNames.Obligatory)
+                            {
+                                <MudNumericField T="int" Label="@name.ToIndonesian()" Variant="Variant.Outlined"
+                                                 Value="_draft.PrayerDurationMinutes[name]"
+                                                 ValueChanged="v => _draft.PrayerDurationMinutes[name] = v"
+                                                 Min="1" Max="120" Adornment="Adornment.End" AdornmentText="menit" />
+                            }
+                        </MudStack>
+                        break;
+
+                    case Section.Wallpaper:
+                        <MudText Typo="Typo.h6" Class="mb-4">Wallpaper</MudText>
+                        <MudStack Spacing="4">
+                            <MudSwitch T="bool" Value="_draft.Wallpaper.Enabled" ValueChanged="v => _draft.Wallpaper.Enabled = v"
+                                       Color="Color.Primary" Label="Aktifkan mode wallpaper" />
+                            <MudNumericField T="int" Label="Interval pergantian wallpaper" Variant="Variant.Outlined"
+                                             Value="_draft.Wallpaper.IntervalSeconds"
+                                             ValueChanged="v => _draft.Wallpaper.IntervalSeconds = v"
+                                             Min="3" Max="120" Adornment="Adornment.End" AdornmentText="detik" />
+
+                            <MudText Typo="Typo.subtitle1">Daftar Wallpaper</MudText>
+                            <MudStack Spacing="2">
+                                @foreach (var item in _draft.Wallpaper.Items)
+                                {
+                                    <div class="wallpaper-list-row">
+                                        <img src="@item.Url" alt="@item.Label" class="wallpaper-thumb" />
+                                        <MudText Typo="Typo.body2" Class="flex-grow-1">@(item.Label ?? item.Url)</MudText>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                                                       OnClick="() => RemoveWallpaper(item)" aria-label="Hapus" />
+                                    </div>
+                                }
+                                @if (_draft.Wallpaper.Items.Count == 0)
+                                {
+                                    <MudAlert Severity="Severity.Warning" Dense="true">
+                                        Belum ada wallpaper. Tambahkan URL gambar di bawah.
+                                    </MudAlert>
+                                }
+                            </MudStack>
+
+                            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
+                                <MudTextField T="string" @bind-Value="_newWallpaperUrl" Label="URL Gambar Wallpaper"
+                                              Variant="Variant.Outlined" Class="flex-grow-1"
+                                              HelperText="Tempelkan alamat (URL) gambar yang bisa diakses publik, contoh: https://.../gambar.jpg" />
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddWallpaper"
+                                           Disabled="string.IsNullOrWhiteSpace(_newWallpaperUrl)">
+                                    Tambah
+                                </MudButton>
+                            </MudStack>
+                        </MudStack>
+                        break;
+
+                    case Section.Reset:
+                        <MudText Typo="Typo.h6" Class="mb-4">Reset Pengaturan</MudText>
+                        <MudAlert Severity="Severity.Warning" Class="mb-4">
+                            Tindakan ini akan mengembalikan semua pengaturan (lokasi, masjid, penyesuaian waktu,
+                            iqamah, durasi sholat, dan wallpaper) ke nilai bawaan. Perubahan baru berlaku setelah
+                            Anda menekan "Simpan Pengaturan".
                         </MudAlert>
-                    }
-                </MudStack>
-            </MudTabPanel>
 
-            <MudTabPanel Text="Masjid">
-                <MudStack Spacing="4" Class="pa-4">
-                    <MudTextField @bind-Value="_draft.Mosque.Name" Label="Nama Masjid" Variant="Variant.Outlined" />
-                    <MudTextField @bind-Value="_draft.Mosque.Address" Label="Alamat Masjid" Variant="Variant.Outlined" Lines="2" />
-                </MudStack>
-            </MudTabPanel>
-
-            <MudTabPanel Text="Penyesuaian Waktu">
-                <MudText Typo="Typo.body2" Class="mb-4">
-                    Menambah atau mengurangi jadwal waktu sholat dari API, dalam menit. Boleh negatif.
-                </MudText>
-                <MudStack Spacing="3" Class="pa-4">
-                    @foreach (var name in PrayerNames.Chronological)
-                    {
-                        <MudNumericField T="int" Label="@name.ToIndonesian()" Variant="Variant.Outlined"
-                                         Value="_draft.TimeAdjustmentMinutes[name]"
-                                         ValueChanged="v => _draft.TimeAdjustmentMinutes[name] = v"
-                                         Min="-60" Max="60" Adornment="Adornment.End" AdornmentText="menit" />
-                    }
-                </MudStack>
-            </MudTabPanel>
-
-            <MudTabPanel Text="Iqamah">
-                <MudText Typo="Typo.body2" Class="mb-4">Jeda dari Azan ke Iqamah, dalam menit. Default 10 menit.</MudText>
-                <MudStack Spacing="3" Class="pa-4">
-                    @foreach (var name in PrayerNames.Obligatory)
-                    {
-                        <MudNumericField T="int" Label="@name.ToIndonesian()" Variant="Variant.Outlined"
-                                         Value="_draft.IqamahMinutes[name]"
-                                         ValueChanged="v => _draft.IqamahMinutes[name] = v"
-                                         Min="0" Max="60" Adornment="Adornment.End" AdornmentText="menit" />
-                    }
-                </MudStack>
-            </MudTabPanel>
-
-            <MudTabPanel Text="Durasi Sholat">
-                <MudText Typo="Typo.body2" Class="mb-4">
-                    Lama tampilan "Waktu Sholat" aktif, dihitung dari waktu Iqamah. Default 15 menit.
-                </MudText>
-                <MudStack Spacing="3" Class="pa-4">
-                    @foreach (var name in PrayerNames.Obligatory)
-                    {
-                        <MudNumericField T="int" Label="@name.ToIndonesian()" Variant="Variant.Outlined"
-                                         Value="_draft.PrayerDurationMinutes[name]"
-                                         ValueChanged="v => _draft.PrayerDurationMinutes[name] = v"
-                                         Min="1" Max="120" Adornment="Adornment.End" AdornmentText="menit" />
-                    }
-                </MudStack>
-            </MudTabPanel>
-
-            <MudTabPanel Text="Wallpaper">
-                <MudStack Spacing="4" Class="pa-4">
-                    <MudSwitch T="bool" Value="_draft.Wallpaper.Enabled" ValueChanged="v => _draft.Wallpaper.Enabled = v"
-                               Color="Color.Primary" Label="Aktifkan mode wallpaper" />
-                    <MudNumericField T="int" Label="Interval pergantian wallpaper" Variant="Variant.Outlined"
-                                     Value="_draft.Wallpaper.IntervalSeconds"
-                                     ValueChanged="v => _draft.Wallpaper.IntervalSeconds = v"
-                                     Min="3" Max="120" Adornment="Adornment.End" AdornmentText="detik" />
-
-                    <MudText Typo="Typo.subtitle1">Daftar Wallpaper</MudText>
-                    <MudStack Spacing="2">
-                        @foreach (var item in _draft.Wallpaper.Items)
+                        @if (!_confirmingReset)
                         {
-                            <div class="wallpaper-list-row">
-                                <img src="@item.Url" alt="@item.Label" class="wallpaper-thumb" />
-                                <MudText Typo="Typo.body2" Class="flex-grow-1">@(item.Label ?? item.Url)</MudText>
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
-                                               OnClick="() => RemoveWallpaper(item)" aria-label="Hapus" />
-                            </div>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error"
+                                       StartIcon="@Icons.Material.Filled.RestartAlt"
+                                       OnClick="() => _confirmingReset = true">
+                                Reset ke Default
+                            </MudButton>
                         }
-                        @if (_draft.Wallpaper.Items.Count == 0)
+                        else
                         {
-                            <MudAlert Severity="Severity.Warning" Dense="true">
-                                Belum ada wallpaper. Tambahkan URL gambar di bawah.
-                            </MudAlert>
+                            <MudStack Spacing="3">
+                                <MudText Typo="Typo.body1">Yakin ingin mereset semua pengaturan ke default?</MudText>
+                                <MudStack Row="true" Spacing="2">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ResetToDefault">
+                                        Ya, Reset Sekarang
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="() => _confirmingReset = false">
+                                        Batal
+                                    </MudButton>
+                                </MudStack>
+                            </MudStack>
                         }
-                    </MudStack>
+                        break;
+                }
 
-                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
-                        <MudTextField T="string" @bind-Value="_newWallpaperUrl" Label="URL Gambar Wallpaper"
-                                      Variant="Variant.Outlined" Class="flex-grow-1"
-                                      HelperText="Tempelkan alamat (URL) gambar yang bisa diakses publik, contoh: https://.../gambar.jpg" />
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddWallpaper"
-                                   Disabled="string.IsNullOrWhiteSpace(_newWallpaperUrl)">
-                            Tambah
-                        </MudButton>
-                    </MudStack>
+                <MudStack Row="true" Spacing="3" Class="mt-8" Justify="Justify.FlexEnd">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync">Simpan Pengaturan</MudButton>
                 </MudStack>
-            </MudTabPanel>
-        </MudTabs>
-
-        <MudStack Row="true" Spacing="3" Class="mt-6" Justify="Justify.FlexEnd">
-            <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="ResetToDefault">Reset ke Default</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync">Simpan Pengaturan</MudButton>
-        </MudStack>
+            </MudPaper>
+        </div>
     }
-</MudContainer>
+</div>
 
 @code {
+    private enum Section
+    {
+        Lokasi,
+        Masjid,
+        PenyesuaianWaktu,
+        Iqamah,
+        DurasiSholat,
+        Wallpaper,
+        Reset,
+    }
+
+    private sealed record SectionInfo(Section Id, string Label, string Icon);
+
+    private readonly SectionInfo[] _sections =
+    [
+        new(Section.Lokasi, "Lokasi", Icons.Material.Filled.LocationOn),
+        new(Section.Masjid, "Masjid", Icons.Material.Filled.Mosque),
+        new(Section.PenyesuaianWaktu, "Penyesuaian Waktu", Icons.Material.Filled.Schedule),
+        new(Section.Iqamah, "Iqamah", Icons.Material.Filled.NotificationsActive),
+        new(Section.DurasiSholat, "Durasi Sholat", Icons.Material.Filled.Timer),
+        new(Section.Wallpaper, "Wallpaper", Icons.Material.Filled.Image),
+    ];
+
+    private Section _active = Section.Lokasi;
+    private bool _confirmingReset;
     private AppSettings? _draft;
     private bool _detecting;
     private string _newWallpaperUrl = "";
@@ -200,6 +288,8 @@
     {
         _draft = AppSettings.CreateDefault();
         _draft.Wallpaper.Items = DefaultWallpapers.CreateSeedSet();
+        _confirmingReset = false;
+        Snackbar.Add("Pengaturan dikembalikan ke default. Tekan \"Simpan Pengaturan\" untuk menyimpan.", Severity.Info);
     }
 
     private async Task SaveAsync()
