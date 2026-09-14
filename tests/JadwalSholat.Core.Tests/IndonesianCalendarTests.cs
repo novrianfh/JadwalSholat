@@ -56,4 +56,15 @@ public class IndonesianCalendarTests
 
         Assert.NotEqual(firstHijri, laterHijri);
     }
+
+    [Theory]
+    [InlineData(2026, 6, 16, "1 Muharram 1448 H")] // KHGT: 1 Muharam 1448 H
+    [InlineData(2026, 9, 12, "1 Rabiul Akhir 1448 H")] // KHGT: awal Rabiulakhir 1448 H
+    [InlineData(2026, 9, 14, "3 Rabiul Akhir 1448 H")] // KHGT (bukan 2, seperti kalender tabular Kemenag/.NET)
+    public void FormatHijri_MatchesKhgtMuhammadiyahCalendar(int y, int m, int d, string expected)
+    {
+        // Cross-checked against https://khgt.muhammadiyah.or.id/kalendar-hijriah (2026-09-14).
+        var result = IndonesianCalendar.FormatHijri(new DateOnly(y, m, d));
+        Assert.Equal(expected, result);
+    }
 }

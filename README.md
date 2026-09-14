@@ -17,6 +17,7 @@ tests/
   JadwalSholat.Web.Tests/    xUnit + bUnit — komponen & layanan Web (24 test).
 tools/
   generate_prayer_times.py  Script Python untuk mengambil data 1 tahun dari api.myquran.com.
+  generate_khgt_calendar.py Script Python untuk membangkitkan tabel awal bulan KHGT dari khgt.muhammadiyah.or.id.
 ```
 
 ## Menjalankan aplikasi
@@ -50,9 +51,16 @@ kembali.
 - **5 kota yang didukung**: Jakarta, Bandung, Semarang, Yogyakarta, Surabaya (`City.Bundled` di
   Core). Deteksi lokasi otomatis mencocokkan GPS ke kota terdekat dari 5 ini via haversine — bukan
   pencarian ke seluruh kota Indonesia, karena hanya 5 kota ini yang datanya di-bundle.
-- **Kalender Hijriyah**: memakai `System.Globalization.HijriCalendar` bawaan .NET (kalkulasi
-  tabular). Bisa berbeda 1 hari dari pengumuman rukyat Kemenag di sekitar pergantian bulan — hal
-  ini didokumentasikan sebagai estimasi, bukan dianggap sebagai bug.
+- **Kalender Hijriyah**: mengikuti Kalender Hijriah Global Tunggal (KHGT) Muhammadiyah. Tabel awal
+  bulan (`IndonesianCalendar.KhgtMonthStarts`) dibangkitkan oleh `tools/generate_khgt_calendar.py`
+  dari PDF kalender per-tahun di [khgt.muhammadiyah.or.id](https://khgt.muhammadiyah.or.id/kalendar-hijriah)
+  (situs itu tidak punya API/JSON). Bisa berbeda 1 hari dari kalender tabular Kemenag/NU di sekitar
+  pergantian bulan — itu memang perbedaan metode (KHGT hisab global vs rukyat), bukan bug. Di luar
+  rentang tabel, formatter jatuh kembali ke `HijriCalendar` bawaan .NET sebagai estimasi kasar.
+  Workflow `.github/workflows/update-khgt-calendar.yml` menjalankan script ini tiap awal tahun
+  (dan bisa dipicu manual via "Run workflow") untuk memperpanjang cakupan, lalu membuka PR berisi
+  diff-nya — sengaja tidak auto-merge karena ini data kalender ibadah, perlu ditinjau dulu sebelum
+  masuk `main`.
 - **Mode tampilan dashboard**: dashboard punya dua mode yang berganti otomatis berdasarkan status
   waktu sholat (`PrayerStatusCalculator`), bukan berdasarkan interaksi pengguna:
   - **Ambient** (default): wallpaper berputar di background, jam kecil, grid waktu sholat tetap

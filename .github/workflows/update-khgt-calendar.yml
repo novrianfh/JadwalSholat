@@ -1,0 +1,66 @@
+name: Update KHGT Hijri calendar
+
+# Keeps the KHGT (Muhammadiyah) month-start table in IndonesianCalendar.cs comfortably ahead of
+# "today" by re-running tools/generate_khgt_calendar.py and opening a PR with whatever it changes.
+# Deliberately opens a PR instead of pushing straight to main: this is worship/prayer-relevant
+# calendar data, so a human should eyeball the diff before it ships to the live site.
+on:
+  schedule:
+    - cron: '0 3 2 1 *' # 03:00 UTC on Jan 2nd every year
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r tools/requirements.txt
+
+      - name: Regenerate KHGT calendar table
+        run: python tools/generate_khgt_calendar.py
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet -- src/JadwalSholat.Core/Services/IndonesianCalendar.cs; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup .NET
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Test
+        if: steps.diff.outputs.changed == 'true'
+        run: dotnet test JadwalSholat.sln --configuration Release
+
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'Update KHGT Hijri calendar table'
+          title: 'Update KHGT Hijri calendar table'
+          body: |
+            Automated update from `tools/generate_khgt_calendar.py`, re-fetched from
+            [khgt.muhammadiyah.or.id](https://khgt.muhammadiyah.or.id/kalendar-hijriah).
+
+            Please review the diff against the source site before merging — this is
+            worship-relevant calendar data shown on the live dashboard.
+          branch: update-khgt-calendar
+          labels: automated
+          delete-branch: true
