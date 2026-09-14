@@ -187,11 +187,11 @@ html, body {
     line-height: 1;
 }
 .clock-panel.is-focus .clock-panel-time-main {
-    font-size: 1.3em;
+    font-size: 2.6em;
     line-height: 1;
 }
 .clock-panel.is-focus .clock-panel-time-seconds {
-    font-size: 0.38em;
+    font-size: 1em;
     line-height: 1;
     opacity: 0.75;
 }
@@ -200,7 +200,7 @@ html, body {
 }
 
 .countdown-label {
-    font-size: clamp(0.9rem, 2.2vw, 1.3rem);
+    font-size: clamp(1.4rem, 3.5vw, 3rem);
     opacity: 0.85;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -216,7 +216,7 @@ html, body {
     transition: font-size 0.4s ease, color 0.3s ease;
 }
 .clock-panel.is-compact .countdown-value {
-    font-size: clamp(1.1rem, 3.5vw, 1.8rem);
+    font-size: clamp(2rem, 6vw, 4rem);
 }
 .clock-panel.is-focus .countdown-value {
     font-size: 0.42em;
@@ -281,19 +281,19 @@ html, body {
     border-right: none;
 }
 .prayer-grid-name {
-    font-size: clamp(0.65rem, 1.4vw, 0.95rem);
+    font-size: clamp(1rem, 2.2vw, 2.5rem);
     opacity: 0.75;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 .prayer-grid-time {
-    font-size: clamp(1rem, 2.8vw, 1.7rem);
+    font-size: clamp(1.6rem, 5vw, 4rem);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
 }
 .prayer-grid-cell.is-next {
-    background: rgba(47, 191, 131, 0.25);
-    box-shadow: inset 0 3px 0 #2FBF83;
+    background: rgba(232, 178, 58, 0.25);
+    box-shadow: inset 0 3px 0 #E8B23A;
 }
 
 /* Narrow screens: a fixed-height, horizontally scrollable single row instead of wrapping to

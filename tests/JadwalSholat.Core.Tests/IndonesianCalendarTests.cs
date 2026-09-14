@@ -26,7 +26,7 @@ public class IndonesianCalendarTests
 
     private static string DayNameFor(DayOfWeek day) => day switch
     {
-        DayOfWeek.Sunday => "Minggu",
+        DayOfWeek.Sunday => "Ahad",
         DayOfWeek.Monday => "Senin",
         DayOfWeek.Tuesday => "Selasa",
         DayOfWeek.Wednesday => "Rabu",

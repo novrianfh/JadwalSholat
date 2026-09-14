@@ -7,7 +7,7 @@ namespace JadwalSholat.Core.Services;
 public static class IndonesianCalendar
 {
     private static readonly string[] DayNames =
-        ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        ["Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
     private static readonly string[] GregorianMonthNames =
     [
