@@ -170,6 +170,31 @@
                         </MudStack>
                         break;
 
+                    case Section.Tentang:
+                        <MudText Typo="Typo.h6" Class="mb-4">Tentang</MudText>
+                        <MudStack Spacing="4">
+                            <MudText Typo="Typo.body1">
+                                Jadwal Sholat adalah aplikasi jadwal sholat yang berjalan sepenuhnya di browser
+                                (client-side), tanpa server backend. Semua pengaturan di halaman ini — lokasi,
+                                masjid, penyesuaian waktu, iqamah, durasi sholat, dan wallpaper — disimpan langsung
+                                di <code>localStorage</code> browser Anda, bukan di server manapun.
+                            </MudText>
+
+                            <MudStack Spacing="1">
+                                <MudText Typo="Typo.subtitle1">Source Code</MudText>
+                                <MudLink Href="https://github.com/novrianfh/JadwalSholat" Target="_blank">
+                                    github.com/novrianfh/JadwalSholat
+                                </MudLink>
+                            </MudStack>
+
+                            <MudStack Spacing="1">
+                                <MudText Typo="Typo.subtitle1">Saran &amp; Diskusi</MudText>
+                                <MudLink Href="https://instagram.com/nvrnfjr" Target="_blank">Instagram @@nvrnfjr</MudLink>
+                                <MudLink Href="mailto:novrian.fh@live.com">novrian.fh@live.com</MudLink>
+                            </MudStack>
+                        </MudStack>
+                        break;
+
                     case Section.Reset:
                         <MudText Typo="Typo.h6" Class="mb-4">Reset Pengaturan</MudText>
                         <MudAlert Severity="Severity.Warning" Class="mb-4">
@@ -203,9 +228,12 @@
                         break;
                 }
 
-                <MudStack Row="true" Spacing="3" Class="mt-8" Justify="Justify.FlexEnd">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync">Simpan Pengaturan</MudButton>
-                </MudStack>
+                @if (_active != Section.Tentang)
+                {
+                    <MudStack Row="true" Spacing="3" Class="mt-8" Justify="Justify.FlexEnd">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync">Simpan Pengaturan</MudButton>
+                    </MudStack>
+                }
             </MudPaper>
         </div>
     }
@@ -220,6 +248,7 @@
         Iqamah,
         DurasiSholat,
         Wallpaper,
+        Tentang,
         Reset,
     }
 
@@ -233,6 +262,7 @@
         new(Section.Iqamah, "Iqamah", Icons.Material.Filled.NotificationsActive),
         new(Section.DurasiSholat, "Durasi Sholat", Icons.Material.Filled.Timer),
         new(Section.Wallpaper, "Wallpaper", Icons.Material.Filled.Image),
+        new(Section.Tentang, "Tentang", Icons.Material.Filled.Info),
     ];
 
     private Section _active = Section.Lokasi;
