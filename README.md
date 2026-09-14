@@ -3,6 +3,8 @@
 Aplikasi web jadwal sholat untuk tampilan masjid (Blazor WebAssembly .NET 10 + MudBlazor), sesuai
 [Requirement.md](Requirement.md).
 
+Bisa langsung diakses via GitHub Pages: **https://novrianfh.github.io/JadwalSholat**.
+
 ## Struktur proyek
 
 ```
@@ -61,7 +63,8 @@ kembali.
     beberapa saat (bukan waktu iqamah atau waktu sholat), display utama akan berubah menjadi
     wallpaper."
 - **Penyimpanan**: semua pengaturan (`AppSettings`) disimpan di LocalStorage browser via JS interop
-  langsung (bukan library pihak ketiga) di bawah key `jadwalsholat.settings.v1`.
+  langsung (bukan library pihak ketiga) di bawah key `jadwalsholat.settings.v1`. Karena tersimpan di
+  LocalStorage (bukan in-memory), pengaturan tetap aman dan tidak hilang saat halaman di-refresh.
 - **Wallpaper**: 4 wallpaper default (SVG gradient + siluet masjid, dibuat lokal) di-seed otomatis
   saat pertama kali dijalankan. Admin bisa menambah wallpaper lain lewat URL gambar di halaman
   Pengaturan.
