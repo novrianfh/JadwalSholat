@@ -53,12 +53,12 @@
 
                             @if (_draft.LocationMode == LocationMode.Manual)
                             {
-                                <MudSelect T="string" Label="Kota" @bind-Value="_draft.CityId" Variant="Variant.Outlined">
-                                    @foreach (var city in City.Bundled)
-                                    {
-                                        <MudSelectItem Value="@city.Id">@city.Name (@city.Region)</MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <MudAutocomplete T="City" Label="Kota" Variant="Variant.Outlined"
+                                                 Value="City.FindById(_draft.CityId)"
+                                                 ValueChanged="c => _draft.CityId = c?.Id ?? _draft.CityId"
+                                                 SearchFunc="SearchCities"
+                                                 ToStringFunc="CityDisplay"
+                                                 ResetValueOnEmptyText="false" CoerceText="true" />
                             }
                             else
                             {
@@ -69,8 +69,9 @@
                                     Kota terpilih saat ini: <b>@(City.FindById(_draft.CityId)?.Name ?? "-")</b>
                                 </MudText>
                                 <MudAlert Severity="Severity.Info" Dense="true">
-                                    Deteksi otomatis mencocokkan lokasi GPS Anda dengan kota terdekat dari 5 kota yang
-                                    didukung: Jakarta, Bandung, Semarang, Yogyakarta, Surabaya.
+                                    Deteksi otomatis mencocokkan lokasi GPS Anda dengan kota terdekat dari
+                                    @City.Bundled.Count kota yang didukung (seluruh ibukota provinsi dan beberapa
+                                    kota besar lainnya).
                                 </MudAlert>
                             }
                         </MudStack>
@@ -337,6 +338,18 @@
     {
         var city = await Repository.GetCityScheduleAsync(_draft!.CityId);
         _rawToday = city is not null && city.DaysByDate.TryGetValue(_today, out var raw) ? raw : null;
+    }
+
+    private static string CityDisplay(City? city) => city is null ? string.Empty : $"{city.Name} ({city.Region})";
+
+    private static Task<IEnumerable<City>> SearchCities(string value, CancellationToken token)
+    {
+        IEnumerable<City> results = string.IsNullOrWhiteSpace(value)
+            ? City.Bundled
+            : City.Bundled.Where(c =>
+                c.Name.Contains(value, StringComparison.OrdinalIgnoreCase) ||
+                c.Region.Contains(value, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(results);
     }
 
     private static AppSettings CloneSettings(AppSettings source)

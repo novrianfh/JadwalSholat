@@ -48,9 +48,10 @@ kembali.
   `src/JadwalSholat.Web/wwwroot/data/prayertimes/{cityId}.json`, satu file per kota, masing-masing
   365 hari, bersumber dari `api.myquran.com`. Ini sesuai catatan di Requirement.md: "agar tidak
   perlu feed tiap hari/bulan". Jalankan ulang script ini setahun sekali untuk memperbarui data.
-- **5 kota yang didukung**: Jakarta, Bandung, Semarang, Yogyakarta, Surabaya (`City.Bundled` di
-  Core). Deteksi lokasi otomatis mencocokkan GPS ke kota terdekat dari 5 ini via haversine — bukan
-  pencarian ke seluruh kota Indonesia, karena hanya 5 kota ini yang datanya di-bundle.
+- **50 kota yang didukung**: seluruh 38 ibukota provinsi ditambah 12 kota besar lain seperti
+  Bekasi, Depok, Tangerang, Bogor, dan Malang (`City.Bundled` di Core). Deteksi lokasi otomatis
+  mencocokkan GPS ke kota terdekat dari 50 ini via haversine — bukan pencarian ke seluruh kota
+  Indonesia, karena hanya kota-kota ini yang datanya di-bundle.
 - **Kalender Hijriyah**: mengikuti Kalender Hijriah Global Tunggal (KHGT) Muhammadiyah. Tabel awal
   bulan (`IndonesianCalendar.KhgtMonthStarts`) dibangkitkan oleh `tools/generate_khgt_calendar.py`
   dari PDF kalender per-tahun di [khgt.muhammadiyah.or.id](https://khgt.muhammadiyah.or.id/kalendar-hijriah)
@@ -82,5 +83,5 @@ kembali.
 - Dataset jadwal sholat mencakup 12 bulan berjalan sejak terakhir di-generate. Di luar rentang itu,
   dashboard menampilkan pesan "jadwal belum tersedia" alih-alih menghitung sendiri — jalankan ulang
   `tools/generate_prayer_times.py` untuk memperbarui.
-- Auto-detect lokasi hanya mencocokkan ke salah satu dari 5 kota bundel, bukan lokasi presisi.
+- Auto-detect lokasi hanya mencocokkan ke salah satu dari 50 kota bundel, bukan lokasi presisi.
 - Tanggal Hijriyah adalah estimasi kalender tabular, bukan hasil rukyatul hilal resmi.

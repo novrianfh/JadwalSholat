@@ -36,7 +36,7 @@
 
 ### Catatan: 
 - penyimpanan menggunakan LocalStorage
-- kalau bisa, ambil jadwal sholat dari kota besar di Indonesia selama 1 tahun agar tidak perlu feed tiap hari/bulan: Yogyakarta, Jakarta, Semarang, Surabaya, Bandung.
+- kalau bisa, ambil jadwal sholat dari kota besar di Indonesia selama 1 tahun agar tidak perlu feed tiap hari/bulan: awalnya Yogyakarta, Jakarta, Semarang, Surabaya, Bandung — diperluas ke seluruh 38 ibukota provinsi ditambah beberapa kota besar lain (lihat `City.Bundled`).
 
 
 
